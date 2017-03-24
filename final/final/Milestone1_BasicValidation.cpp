@@ -3,7 +3,6 @@
 #include <iomanip>
 #include "Pkt_Def.h"
 using namespace std;
-
 int main()
 {
 	MotorBody DriveCmd;
@@ -37,10 +36,13 @@ int main()
 
 	cout << endl << noshowbase << dec;
 
+	// 0000 1011
+	// 0001 1000
+	// 0000 0010 
 
 	//Testing the PktDef creation interface based on an RxBuffer of RAW Data
 	char buffer[9] = { 0x02, 0x00, 0x00, 0x00, 0x02, 0x09, 0x11, 0x24, 0x08 };
-	PktDef RxPkt(buffer);
+	PktDef RxPkt(buffer); // <--------------------------------------------------------err
 	cout << "CommandID:  " << RxPkt.GetCmd() << endl;
 	cout << "PktCount:   " << RxPkt.GetPktCount() << endl;
 	cout << "Pkt Length: " << RxPkt.GetLength() << endl;
