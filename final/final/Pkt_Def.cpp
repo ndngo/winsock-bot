@@ -1,5 +1,5 @@
 #include "Pkt_Def.h"
-namespace finalproject {
+namespace robocom {
 PktDef::PktDef() {
 	cmdPacket.head.PktCount = 0;
 	cmdPacket.head.Drive = 0;

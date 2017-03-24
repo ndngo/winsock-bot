@@ -7,13 +7,11 @@
 #include <iostream>
 #include <thread>
 #include <chrono>
-// two PKT_DEFS
 
-namespace finalproject {
+namespace robocom {
 
 	enum CmdType { DRIVE, SLEEP, ARM, CLAW, ACK };
-
-
+    
 	const int FORWARD = 1;
 	const int BACKWARD = 2;
 	const int RIGHT = 3;
@@ -24,18 +22,31 @@ namespace finalproject {
 	const int CLOSE = 8;
 	const int HEADERSIZE;
 
-	/*class Pkt_Def {
-		Header head;
-		MotorBody * motorBody;
-		CmdType type; // calculate by hand
-	};*/
+	struct Header {
+		unsigned int PktCount;
+		unsigned char Drive : 1;
+		unsigned char Status : 1;
+		unsigned char Sleep : 1;
+		unsigned char Arm : 1;
+		unsigned char Claw : 1;
+		unsigned char Ack : 1;
+		unsigned char pad : 2;
+		unsigned char length;
+	};
 
-	class PktDef {
+	struct CmdPacket {
 		Header head;
-		MotorBody * motorBody;
-		CmdType type; // calculate by hand
+		char * Data;
+		unsigned char CRC;
+	};
+
+	struct MotorBody {
+		unsigned char Direction;
+		unsigned char Duration;
+	};
+	class PktDef {
 		CmdPacket cmdPacket;
-		char * RawBuffer; // store data in PktDef serialized, body
+		char * RawBuffer;
 		PktDef();
 		PktDef(char *);
 		void SetCmd(CmdType);
@@ -49,36 +60,6 @@ namespace finalproject {
 		bool CheckCRC(char *, int);
 		void CalcCRC();
 		char * GenPacket();
-	};
-
-	/*the packet*/
-	struct CmdPacket {
-		Header head;
-		char * Data; // body
-		unsigned char CRC;
-	};
-
-	struct Header {
-		/*increments per transmit, packet ID*/
-		unsigned int PktCount;
-
-		/*identifies command type*/
-		unsigned char Drive : 1;
-		unsigned char Status : 1;
-		unsigned char Sleep : 1;
-		unsigned char Arm : 1;
-		unsigned char Claw : 1;
-		unsigned char Ack : 1;
-		unsigned char pad : 2;
-
-		/*total # bytes in packet*/
-		unsigned char length;
-	};
-
-	struct MotorBody {
-		/*set only if it is Drive = 1*/
-		unsigned char Direction;
-		unsigned int Duration;
 	};
 }
 #endif
