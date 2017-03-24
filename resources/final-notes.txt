@@ -1,0 +1,4 @@
+milestone 1
+make protocol object, packet to transmit
+class of structs
+
