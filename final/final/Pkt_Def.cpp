@@ -42,23 +42,29 @@ PktDef::PktDef(char * raw) {
 void PktDef::SetCmd(CmdType cmdtype) {
 	if (cmdtype == DRIVE) {
 		cmdPacket.head.Drive = 1;
-		cmdPacket.head.length = 2;
+
+		cmdPacket.head.length = sizeof(Header) + 2 + sizeof(char);
 	}
 	else if (cmdtype == SLEEP) {
+
 		cmdPacket.head.Sleep = 1;
-		cmdPacket.head.length = 0;
+
+		cmdPacket.head.length = sizeof(Header) + 0 + sizeof(char);
 	}
 	else if (cmdtype == ARM) {
+
 		cmdPacket.head.Arm = 1;
-		cmdPacket.head.length = 2;
+
+		cmdPacket.head.length = sizeof(Header) + 2 + sizeof(char);
 	}
 	else if (cmdtype == CLAW) {
+
 		cmdPacket.head.Claw = 1;
-		cmdPacket.head.length = 2;
+
+		cmdPacket.head.length = sizeof(Header) + 2 + sizeof(char);
 	}
 	else if (cmdtype == ACK) {
 		cmdPacket.head.Ack = 1;
-		cmdPacket.head.length = 2;
 	}
 }
 
@@ -144,7 +150,7 @@ void PktDef::CalcCRC() {
 }
 
 char * PktDef::GenPacket() {
-	int size = sizeof(Header) + cmdPacket.head.length + sizeof(unsigned char);
+	int size = HEADERSIZE + cmdPacket.head.length + sizeof(unsigned char);
 	RawBuffer = new char[size];
 	memset(RawBuffer, 0, size);
 	char * p = RawBuffer;

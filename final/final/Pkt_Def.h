@@ -32,7 +32,7 @@ struct Header { // 8 bytes
 	unsigned char length; // 1 byte
 };
 
-const int HEADERSIZE = sizeof(Header);
+const int HEADERSIZE = 6;
 
 struct CmdPacket {
 	Header head; // 6 bytes
