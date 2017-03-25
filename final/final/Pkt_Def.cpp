@@ -14,6 +14,7 @@ PktDef::PktDef() {
 	cmdPacket.CRC = 0;
 	RawBuffer = nullptr;
 }
+
 PktDef::PktDef(char * raw) {
 	char * p = raw; // 
 	
@@ -39,6 +40,7 @@ PktDef::PktDef(char * raw) {
 	// tail
 	memcpy(&cmdPacket.CRC, p, sizeof(char));
 }
+
 void PktDef::SetCmd(CmdType cmdtype) {
 	if (cmdtype == DRIVE) {
 		cmdPacket.head.Drive = 1;
@@ -113,6 +115,7 @@ CmdType PktDef::GetCmd() {
 		return ERR;
 	}
 }
+
 bool PktDef::GetAck() {
 	// TODO CHEKC ACK BIT
 	char * p = (char *)&cmdPacket.head.PktCount + sizeof(int);
@@ -138,6 +141,7 @@ bool PktDef::CheckCRC(char * raw, int size) {
 	}
 	return count == cmdPacket.CRC;
 }
+
 void PktDef::CalcCRC() {
 	char * p = (char *)&cmdPacket.head.PktCount;
 	unsigned char count = 0;
@@ -170,7 +174,7 @@ char * PktDef::GenPacket() {
 
 	// header
 	memcpy(p, &cmdPacket.head, sizeof(Header));
-	p += sizeof(Header);
+	p += sizeof(HEADERSIZE);
 
 	// body
 	memcpy(p, cmdPacket.Data, cmdPacket.head.length);
