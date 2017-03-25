@@ -42,25 +42,38 @@ PktDef::PktDef(char * raw) {
 void PktDef::SetCmd(CmdType cmdtype) {
 	if (cmdtype == DRIVE) {
 		cmdPacket.head.Drive = 1;
-
+		cmdPacket.head.Status = 0;
+		cmdPacket.head.Sleep = 0;
+		cmdPacket.head.Arm = 0;
+		cmdPacket.head.Claw = 0;
+		cmdPacket.head.Ack = 0;
 		cmdPacket.head.length = sizeof(Header) + 2 + sizeof(char);
 	}
 	else if (cmdtype == SLEEP) {
-
+		cmdPacket.head.Drive = 0;
+		cmdPacket.head.Status = 0;
 		cmdPacket.head.Sleep = 1;
-
+		cmdPacket.head.Arm = 0;
+		cmdPacket.head.Claw = 0;
+		cmdPacket.head.Ack = 0;
 		cmdPacket.head.length = sizeof(Header) + 0 + sizeof(char);
 	}
 	else if (cmdtype == ARM) {
-
+		cmdPacket.head.Drive = 0;
+		cmdPacket.head.Status = 0;
+		cmdPacket.head.Sleep = 0;
 		cmdPacket.head.Arm = 1;
-
+		cmdPacket.head.Claw = 0;
+		cmdPacket.head.Ack = 0;
 		cmdPacket.head.length = sizeof(Header) + 2 + sizeof(char);
 	}
 	else if (cmdtype == CLAW) {
-
+		cmdPacket.head.Drive = 0;
+		cmdPacket.head.Status = 0;
+		cmdPacket.head.Sleep = 0;
+		cmdPacket.head.Arm = 0;
 		cmdPacket.head.Claw = 1;
-
+		cmdPacket.head.Ack = 0;
 		cmdPacket.head.length = sizeof(Header) + 2 + sizeof(char);
 	}
 	else if (cmdtype == ACK) {
