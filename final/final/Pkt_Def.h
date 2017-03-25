@@ -19,9 +19,8 @@ const int UP = 5;
 const int DOWN = 6;
 const int OPEN = 7;
 const int CLOSE = 8;
-const int HEADERSIZE = 6;
 
-struct Header {
+struct Header { // 8 bytes
 	unsigned int PktCount; // 4 bytes
 	unsigned char Drive : 1; // 1 bytes
 	unsigned char Status : 1;
@@ -30,8 +29,10 @@ struct Header {
 	unsigned char Claw : 1;
 	unsigned char Ack : 1;
 	unsigned char pad : 2;
-	unsigned char length; // 1 bytes, value = head(6) + data + crc(1)
+	unsigned char length; // 1 byte
 };
+
+const int HEADERSIZE = sizeof(Header);
 
 struct CmdPacket {
 	Header head; // 6 bytes

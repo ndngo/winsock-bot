@@ -42,18 +42,23 @@ PktDef::PktDef(char * raw) {
 void PktDef::SetCmd(CmdType cmdtype) {
 	if (cmdtype == DRIVE) {
 		cmdPacket.head.Drive = 1;
+		cmdPacket.head.length = 2;
 	}
 	else if (cmdtype == SLEEP) {
 		cmdPacket.head.Sleep = 1;
+		cmdPacket.head.length = 0;
 	}
 	else if (cmdtype == ARM) {
 		cmdPacket.head.Arm = 1;
+		cmdPacket.head.length = 2;
 	}
 	else if (cmdtype == CLAW) {
 		cmdPacket.head.Claw = 1;
+		cmdPacket.head.length = 2;
 	}
 	else if (cmdtype == ACK) {
 		cmdPacket.head.Ack = 1;
+		cmdPacket.head.length = 2;
 	}
 }
 
