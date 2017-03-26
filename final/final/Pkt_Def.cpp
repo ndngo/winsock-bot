@@ -42,14 +42,20 @@ PktDef::PktDef(char * raw) {
 
 	memcpy(&cmdPacket.head.length, p, sizeof(cmdPacket.head.length));
 	int size = 0; // determine size of body based on cmdType
-	if (GetCmd() == DRIVE || GetCmd() == ARM || GetCmd() == CLAW) {
+
+
+	// ACK automatically makes size 0 regardless of the other bits
+	// , check for ACK bit first
+
+	if (GetCmd() == ACK || GetCmd() == SLEEP || GetCmd() == NACK) {
+		size = 0;
+	} else if (GetCmd() == DRIVE || GetCmd() == ARM || GetCmd() == CLAW) {
 		size = 2;
 	}
-	else if (GetCmd() == SLEEP || GetCmd() == ACK || GetCmd() == NACK) {
-		size = 0;
-	}
 
-	else if (((*bitfields >> 1) & 0x01)) {
+
+//	else if (((*bitfields >> 1) & 0x01)) {
+	else if (GetCmd() == STATUS) {
 		size = cmdPacket.head.length - HEADERSIZE - sizeof(cmdPacket.CRC);
 	}
 	p += sizeof(char);
