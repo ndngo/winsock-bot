@@ -9,18 +9,19 @@ PktDef::PktDef() {
 	cmdPacket.head.Claw = 0;
 	cmdPacket.head.Ack = 0;
 	cmdPacket.head.pad = 0;
-	cmdPacket.head.length = 0;
+	cmdPacket.head.length = HEADERSIZE + sizeof(cmdPacket.CRC);
 	cmdPacket.Data = nullptr;
 	cmdPacket.CRC = 0;
 	RawBuffer = nullptr;
 }
 
 PktDef::PktDef(char * raw) {
-	char * p = raw; // 
+	char * p = raw;
 	
 	// header
-	memcpy(&cmdPacket.head.PktCount, p, sizeof(int)); // pktcount
+	memcpy(&cmdPacket.head.PktCount, p, sizeof(int));
 	p += sizeof(int);
+
 	cmdPacket.head.Drive = (*p & 0x01);
 	cmdPacket.head.Status = ((*p >> 1) & 0x01);
 	cmdPacket.head.Sleep = ((*p >> 2) & 0x01);
@@ -29,13 +30,21 @@ PktDef::PktDef(char * raw) {
 	cmdPacket.head.Ack = ((*p >> 5) & 0x01);
 	cmdPacket.head.pad = 0x00;
 	p += sizeof(char);
+
 	memcpy(&cmdPacket.head.length, p, sizeof(char));
 	p += sizeof(char);
 	
 	// body
-	RawBuffer = new char[cmdPacket.head.length];
-	memcpy(cmdPacket.Data, p, cmdPacket.head.length);
-	p += cmdPacket.head.length;
+
+	int size = 0; // determine size of body based on cmdType
+	if (GetCmd() == DRIVE || GetCmd() == ARM || GetCmd() == CLAW) {
+		size = 2;
+	}
+	else if (GetCmd() == SLEEP) {
+		size = 0;
+	}
+	memcpy(cmdPacket.Data, p, size);
+	p += size;
 	
 	// tail
 	memcpy(&cmdPacket.CRC, p, sizeof(char));
@@ -93,31 +102,23 @@ void PktDef::SetPktCount(int count) {
 }
 
 CmdType PktDef::GetCmd() {
-	// pointer to beginning of bitfields
-	
 	char * p = (char *)&cmdPacket.head.PktCount + sizeof(int);
 	if (*p & 0x01) {
 		return DRIVE;
-	}
-	else if ((*p >> 2) & 0x01) {
+	} else if ((*p >> 2) & 0x01) {
 		return SLEEP;
-	}
-	else if ((*p >> 3) & 0x01) {
+	} else if ((*p >> 3) & 0x01) {
 		return ARM;
-	}
-	else if ((*p >> 4) & 0x01) {
+	} else if ((*p >> 4) & 0x01) {
 		return CLAW;
-	}
-	else if ((*p >> 5) & 0x01) {
+	} else if ((*p >> 5) & 0x01) {
 		return ACK;
-	}
-	else {
+	} else {
 		return ERR;
 	}
 }
 
 bool PktDef::GetAck() {
-	// TODO CHEKC ACK BIT
 	char * p = (char *)&cmdPacket.head.PktCount + sizeof(int);
 	return (*p >> 5) & 0x01;
 }
@@ -134,8 +135,8 @@ bool PktDef::CheckCRC(char * raw, int size) {
 	// counts number of 1's for CRC?
 	// if calc-crc = crc return true else false
 	unsigned char count = 0;
-	for (int i = 0; i < size; i++) {// loop through byte header
-		for (int j = 0; j < 8; j++) {// loop bits
+	for (int i = 0; i < size; i++) {
+		for (int j = 0; j < 8; j++) {
 			((*raw >> j) & 0x01) ? count++ : count;
 		}
 	}
@@ -143,22 +144,22 @@ bool PktDef::CheckCRC(char * raw, int size) {
 }
 
 void PktDef::CalcCRC() {
-	char * p = (char *)&cmdPacket.head.PktCount;
+	char * p = (char *)&cmdPacket;
 	unsigned char count = 0;
-	for (int i = 0; i < sizeof(Header); i++) {// loop through byte header
-		for (int j = 0; j < 8; j++) {// loop bits
+	for (int i = 0; i < sizeof(Header); i++) {
+		for (int j = 0; j < 8; j++) {
 			((*p >> j) & 0x01) ? count++ : count;
 		}
 	}
 
-	for (int i = 0; i < cmdPacket.head.length; i++) {// loop through byte body
-		for (int j = 0; j < 8; j++) {// loop bits
+	for (int i = 0; i < cmdPacket.head.length; i++) {
+		for (int j = 0; j < 8; j++) {
 			((*p >> j) & 0x01) ? count++ : count;
 		}
 	}
 
-	for (int i = 0; i < sizeof(char); i++) {// loop through byte body
-		for (int j = 0; j < 8; j++) {// loop bits
+	for (int i = 0; i < sizeof(char); i++) {
+		for (int j = 0; j < 8; j++) {
 			((*p >> j) & 0x01) ? count++ : count;
 		}
 	}
@@ -174,7 +175,7 @@ char * PktDef::GenPacket() {
 
 	// header
 	memcpy(p, &cmdPacket.head, sizeof(Header));
-	p += sizeof(HEADERSIZE);
+	p += HEADERSIZE;
 
 	// body
 	memcpy(p, cmdPacket.Data, cmdPacket.head.length);

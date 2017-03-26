@@ -29,14 +29,15 @@ struct Header { // 8 bytes
 	unsigned char Claw : 1;
 	unsigned char Ack : 1;
 	unsigned char pad : 2;
-	unsigned char length; // 1 byte
+	unsigned char length; // 1 byte, size of whole packet in bytes
 };
 
-const int HEADERSIZE = 6;
+const int HEADERSIZE = sizeof(Header) - 2; // compiler allocates 8 bytes but only uses 6
+// is for serialization purpose to ensure no unused gaps
 
 struct CmdPacket {
 	Header head; // 6 bytes
-	char * Data; // length bytes
+	char * Data; // depends on bit flags
 	unsigned char CRC; // 1 bytes
 };
 
