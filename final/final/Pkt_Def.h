@@ -65,6 +65,7 @@ public:
 	bool CheckCRC(char *, int);
 	void CalcCRC();
 	char * GenPacket();
+	~PktDef();
 };
 
 #endif
