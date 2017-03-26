@@ -27,8 +27,8 @@ PktDef::PktDef(char * raw) {
 	char * bitfields;
 	
 	// header
-	memcpy(&cmdPacket.head.PktCount, p, sizeof(int));
-	p += sizeof(int);
+	memcpy(&cmdPacket.head.PktCount, p, sizeof(cmdPacket.head.PktCount));
+	p += sizeof(cmdPacket.head.PktCount);
 
 	bitfields = p;
 	cmdPacket.head.Drive = (*p & 0x01);
@@ -40,20 +40,15 @@ PktDef::PktDef(char * raw) {
 	cmdPacket.head.pad = 0x00;
 	p += sizeof(char);
 
-	memcpy(&cmdPacket.head.length, p, sizeof(char));
+	memcpy(&cmdPacket.head.length, p, sizeof(cmdPacket.head.length));
 	int size = 0; // determine size of body based on cmdType
 	if (GetCmd() == DRIVE || GetCmd() == ARM || GetCmd() == CLAW) {
 		size = 2;
 	}
-	else if (GetCmd() == SLEEP) {
-		size = 0;
-	}
-	else if (GetCmd() == ACK) {
+	else if (GetCmd() == SLEEP || GetCmd() == ACK || GetCmd() == NACK) {
 		size = 0;
 	}
 
-	//	0000 0010
-	// 0000 0001
 	else if (((*bitfields >> 1) & 0x01)) {
 		size = cmdPacket.head.length - HEADERSIZE - sizeof(cmdPacket.CRC);
 	}
@@ -81,7 +76,7 @@ void PktDef::SetCmd(CmdType cmdtype) {
 		cmdPacket.head.Arm = 0;
 		cmdPacket.head.Claw = 0;
 		cmdPacket.head.Ack = 0;
-		cmdPacket.head.length = HEADERSIZE + 2 + sizeof(char);
+		cmdPacket.head.length = HEADERSIZE + 2 + sizeof(cmdPacket.head.length);
 	}
 	else if (cmdtype == SLEEP) {
 		cmdPacket.head.Drive = 0;
@@ -90,7 +85,7 @@ void PktDef::SetCmd(CmdType cmdtype) {
 		cmdPacket.head.Arm = 0;
 		cmdPacket.head.Claw = 0;
 		cmdPacket.head.Ack = 0;
-		cmdPacket.head.length = HEADERSIZE + 0 + sizeof(char);
+		cmdPacket.head.length = HEADERSIZE + 0 + sizeof(cmdPacket.head.length);
 	}
 	else if (cmdtype == ARM) {
 		cmdPacket.head.Drive = 0;
@@ -99,7 +94,7 @@ void PktDef::SetCmd(CmdType cmdtype) {
 		cmdPacket.head.Arm = 1;
 		cmdPacket.head.Claw = 0;
 		cmdPacket.head.Ack = 0;
-		cmdPacket.head.length = HEADERSIZE + 2 + sizeof(char);
+		cmdPacket.head.length = HEADERSIZE + 2 + sizeof(cmdPacket.head.length);
 	}
 	else if (cmdtype == CLAW) {
 		cmdPacket.head.Drive = 0;
@@ -108,7 +103,7 @@ void PktDef::SetCmd(CmdType cmdtype) {
 		cmdPacket.head.Arm = 0;
 		cmdPacket.head.Claw = 1;
 		cmdPacket.head.Ack = 0;
-		cmdPacket.head.length = HEADERSIZE + 2 + sizeof(char);
+		cmdPacket.head.length = HEADERSIZE + 2 + sizeof(cmdPacket.head.length);
 	}
 	else if (cmdtype == ACK) {
 		cmdPacket.head.Ack = 1;
@@ -131,18 +126,18 @@ void PktDef::SetPktCount(int count) {
  * returns ERR if the bitfield is improperly configured
  */
 CmdType PktDef::GetCmd() {
-	char * p = (char *)&cmdPacket.head.PktCount + sizeof(int);
+	char * p = (char *)&cmdPacket + sizeof(cmdPacket.head.PktCount);
 	if		(*p & 0x01)		   { return DRIVE; }
 	else if ((*p >> 1) & 0x01) { return STATUS; }
 	else if ((*p >> 2) & 0x01) { return SLEEP; }
 	else if ((*p >> 3) & 0x01) { return ARM; }
 	else if ((*p >> 4) & 0x01) { return CLAW; }
 	else if ((*p >> 5) & 0x01) { return ACK; }
-//	else { return ERR; }
+	else { return NACK; }
 }
 
 bool PktDef::GetAck() {
-	char * p = (char *)&cmdPacket.head.PktCount + sizeof(int);
+	char * p = (char *)&cmdPacket.head.PktCount + sizeof(cmdPacket.head.PktCount);
 	return (*p >> 5) & 0x01;
 }
 int PktDef::GetLength() {
@@ -203,16 +198,13 @@ void PktDef::CalcCRC() {
 		}
 		p++;
 	}
-	/*p = (char *)&cmdPacket.CRC;
-	for (int i = 0; i < sizeof(char); i++) {
-		for (int j = 0; j < 8; j++) {
-			((*p >> j) & 0x01) ? count++ : count;
-		}
-		p++;
-	}*/
-	cmdPacket.CRC = count; // calcuate CRC
+
+	cmdPacket.CRC = count;
 }
 
+/**
+ * Serializes the packet
+ */
 char * PktDef::GenPacket() {
 	int size = 0; // determine size of body based on cmdType
 	if (GetCmd() == DRIVE || GetCmd() == ARM || GetCmd() == CLAW) {
@@ -234,7 +226,7 @@ char * PktDef::GenPacket() {
 	p += size;
 
 	// tail
-	memcpy(p, &cmdPacket.CRC, sizeof(char));
+	memcpy(p, &cmdPacket.CRC, sizeof(cmdPacket.CRC));
 
 	return RawBuffer;
 }

@@ -9,7 +9,7 @@
 #include <chrono>
 
 
-enum CmdType { DRIVE, SLEEP, STATUS, ARM, CLAW, ACK};
+enum CmdType { DRIVE, SLEEP, STATUS, ARM, CLAW, ACK, NACK };
     
 const int FORWARD = 1;
 const int BACKWARD = 2;
