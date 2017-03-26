@@ -9,7 +9,7 @@
 #include <chrono>
 
 
-enum CmdType { DRIVE, SLEEP, ARM, CLAW, ACK, ERR };
+enum CmdType { DRIVE, SLEEP, STATUS, ARM, CLAW, ACK};
     
 const int FORWARD = 1;
 const int BACKWARD = 2;
@@ -21,7 +21,7 @@ const int OPEN = 7;
 const int CLOSE = 8;
 
 struct Header { // 8 bytes
-	unsigned int PktCount; // 4 bytes
+	unsigned int PktCount; // 4 bytes	
 	unsigned char Drive : 1; // 1 bytes
 	unsigned char Status : 1;
 	unsigned char Sleep : 1;
@@ -29,7 +29,9 @@ struct Header { // 8 bytes
 	unsigned char Claw : 1;
 	unsigned char Ack : 1;
 	unsigned char pad : 2;
+	//
 	unsigned char length; // 1 byte, size of whole packet in bytes
+	//
 };
 
 const int HEADERSIZE = sizeof(Header) - 2; // compiler allocates 8 bytes but only uses 6

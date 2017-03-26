@@ -14,7 +14,7 @@ int main()
 	char *ptr;
 
 	//Testing the PktDef creation interface based on user input
-	TestPkt.SetCmd(DRIVE);
+	TestPkt.SetCmd(CLAW);
 	TestPkt.SetBodyData((char *)&DriveCmd, 2);
 	TestPkt.SetPktCount(1);
 	TestPkt.CalcCRC();
@@ -39,6 +39,16 @@ int main()
 
 
 	//Testing the PktDef creation interface based on an RxBuffer of RAW Data
+	// pktcout = 2
+	// status
+	// length = 9
+	// direction = 11
+	// duration = 24;
+	// crc = 8;
+
+	//	0000 0010
+	// 0000 0001
+
 	char buffer[9] = { 0x02, 0x00, 0x00, 0x00, 0x02, 0x09, 0x11, 0x24, 0x08 };
 	PktDef RxPkt(buffer);
 	cout << "CommandID:  " << RxPkt.GetCmd() << endl;
@@ -65,9 +75,10 @@ int main()
 	char CRCBadTest[9] = { 0x02, 0x00, 0x00, 0x00, 0x02, 0x09, 0x11, 0x24, 0x17 };
 	Result = RxPkt.CheckCRC(CRCBadTest, 9);
 	if (Result)
-		cout << "CRC Test #1 -- FAILED" << endl;
+		cout << "CRC Test #2 -- FAILED" << endl;
 	else
-		cout << "CRC Test #1 -- PASSED" << endl;
+		cout << "CRC Test #2 -- PASSED" << endl;
 
+	std::cin.get();
 	return 1;
 }
