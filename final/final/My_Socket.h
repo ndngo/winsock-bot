@@ -5,13 +5,13 @@
 
 enum SocketType { CLIENT, SERVER };
 enum ConnectionType { TCP, UDP };
-const int DEFAULT_SIZE;
+const int DEFAULT_SIZE = 100;
 
 class MySocket {
 	char * Buffer;
 	SOCKET WelcomeSocket; // TCP/IP
 	SOCKET ConnectionSocket; // TCP and UDP
-	sockaddr_in SvrAddr;
+	struct sockaddr_in SvrAddr;
 	SocketType mySocket;
 	std::string IPAddr;
 	int Port;
