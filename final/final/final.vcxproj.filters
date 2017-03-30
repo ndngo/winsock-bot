@@ -21,9 +21,21 @@
     <ClCompile Include="Pkt_Def.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="My_Socket.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\resources\Milestone2_Client.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\resources\Milestone2_Server.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Pkt_Def.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="My_Socket.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

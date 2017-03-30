@@ -110,10 +110,14 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="..\..\resources\Milestone2_Client.cpp" />
+    <ClCompile Include="..\..\resources\Milestone2_Server.cpp" />
     <ClCompile Include="Milestone1_BasicValidation.cpp" />
+    <ClCompile Include="My_Socket.cpp" />
     <ClCompile Include="Pkt_Def.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="My_Socket.h" />
     <ClInclude Include="Pkt_Def.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

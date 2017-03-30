@@ -10,7 +10,7 @@
 
 
 enum CmdType { DRIVE, SLEEP, STATUS, ARM, CLAW, ACK, NACK };
-    
+
 const int FORWARD = 1;
 const int BACKWARD = 2;
 const int RIGHT = 3;
@@ -29,9 +29,7 @@ struct Header { // 8 bytes
 	unsigned char Claw : 1;
 	unsigned char Ack : 1;
 	unsigned char pad : 2;
-	//
 	unsigned char length; // 1 byte, size of whole packet in bytes
-	//
 };
 
 const int HEADERSIZE = sizeof(Header) - 2; // compiler allocates 8 bytes but only uses 6
