@@ -115,6 +115,7 @@ void PktDef::SetCmd(CmdType cmdtype) {
 
 void PktDef::SetBodyData(char * raw, int size) {
 	cmdPacket.Data = new char[size];
+	cmdPacket.head.length = HEADERSIZE + size + sizeof(cmdPacket.CRC);
 	memcpy(cmdPacket.Data, raw, size);
 }
 
