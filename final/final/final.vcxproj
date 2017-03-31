@@ -21,7 +21,6 @@
   <ItemGroup>
     <ClCompile Include="..\MySocket.cpp" />
     <ClCompile Include="..\Pkt_Def.cpp" />
-    <ClCompile Include="Milestone1_BasicValidation.cpp" />
     <ClCompile Include="Milestone2_Server.cpp" />
   </ItemGroup>
   <ItemGroup>

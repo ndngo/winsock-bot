@@ -17,6 +17,6 @@ int main()
 	ServerSocket.SendData(Pkt.c_str(), strlen(Pkt.c_str())+1);
 
 	ServerSocket.DisconnectTCP();
-
+	std::cin.get();
 	return 1;
 }

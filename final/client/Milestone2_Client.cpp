@@ -18,6 +18,6 @@ int main()
 	std::cout << "Msg = " << buff << ", Bytes = " << RxSize << std::endl;
 
 	ClientSocket.DisconnectTCP();
-
+	std::cin.get();
 	return 1;
 }

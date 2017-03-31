@@ -5,19 +5,20 @@
 
 enum SocketType { CLIENT, SERVER };
 enum ConnectionType { TCP, UDP };
-const int DEFAULT_SIZE = 100;
+const int DEFAULT_SIZE = 256;
 
 class MySocket {
 	char * Buffer;
 	SOCKET WelcomeSocket; // TCP/IP
 	SOCKET ConnectionSocket; // TCP and UDP
-	struct sockaddr_in SvrAddr;
+	struct sockaddr_in SvrAddr; 
 	SocketType mySocket;
 	std::string IPAddr;
 	int Port;
 	ConnectionType connectionType;
-	bool bTCPConnect;
-	int MaxSize;
+	bool bTCPConnect; // is connected?
+	int MaxSize; // max size of Buffer
+
 public:
 	MySocket(SocketType, std::string, unsigned int, ConnectionType, unsigned int);
 	~MySocket();
