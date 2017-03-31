@@ -21,18 +21,16 @@
   <ItemGroup>
     <ClCompile Include="..\MySocket.cpp" />
     <ClCompile Include="..\Pkt_Def.cpp" />
-    <ClCompile Include="Milestone1_BasicValidation.cpp" />
-    <ClCompile Include="Milestone2_Server.cpp" />
+    <ClCompile Include="Milestone2_Client.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\MySocket.h" />
     <ClInclude Include="..\Pkt_Def.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
-    <ProjectGuid>{40F9A6E1-2E3D-4067-9E46-88C6A76F2D78}</ProjectGuid>
-    <RootNamespace>final</RootNamespace>
+    <ProjectGuid>{CC704807-AD0E-4CE6-96B1-DD4D75C2FA65}</ProjectGuid>
+    <RootNamespace>client</RootNamespace>
     <WindowsTargetPlatformVersion>8.1</WindowsTargetPlatformVersion>
-    <ProjectName>server</ProjectName>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">

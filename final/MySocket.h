@@ -1,6 +1,6 @@
 #pragma once
-#ifndef _MY_SOCKET_H
-#define _MY_SOCKET_H
+#ifndef _MYSOCKET_H
+#define _MYSOCKET_H
 #include "Pkt_Def.h"
 
 enum SocketType { CLIENT, SERVER };

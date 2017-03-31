@@ -1,8 +1,9 @@
-#include "My_Socket.h"
+#include "MySocket.h"
 
-MySocket::MySocket(SocketType socketType, std::string ip, unsigned int port, ConnectionType _connectionType, unsigned int size) {
+MySocket::MySocket(SocketType socketType, std::string ip, unsigned int port, ConnectionType connectType, unsigned int size) {
 	//Constructor that configures the socket
-	connectionType = _connectionType;
+	// initialization list
+	connectionType = connectType;
 	mySocket = socketType;
 	Port = port;
 	IPAddr = ip;
@@ -17,8 +18,7 @@ MySocket::MySocket(SocketType socketType, std::string ip, unsigned int port, Con
 			}
 
 
-			if (bind(WelcomeSocket, (struct sockaddr *)&SvrAddr, sizeof(SvrAddr)) == SOCKET_ERROR)
-			{
+			if (bind(WelcomeSocket, (struct sockaddr *)&SvrAddr, sizeof(SvrAddr)) == SOCKET_ERROR) {
 				closesocket(WelcomeSocket);
 				WSACleanup();
 			}
@@ -28,24 +28,20 @@ MySocket::MySocket(SocketType socketType, std::string ip, unsigned int port, Con
 				WSACleanup();
 			}
 
-		}
-		else if (connectionType == UDP)
-		{
+		} else if (connectionType == UDP) {
 			WelcomeSocket = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
 			if (WelcomeSocket == INVALID_SOCKET) {
 				WSACleanup();
 			}
 
 
-			if (bind(WelcomeSocket, (struct sockaddr *)&SvrAddr, sizeof(SvrAddr)) == SOCKET_ERROR)
-			{
+			if (bind(WelcomeSocket, (struct sockaddr *)&SvrAddr, sizeof(SvrAddr)) == SOCKET_ERROR) {
 				closesocket(WelcomeSocket);
 				WSACleanup();
 			}
 
 		}
-	}else if (mySocket == CLIENT)
-	{
+	} else if (mySocket == CLIENT) {
 		ConnectionSocket = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
 		if (ConnectionSocket == INVALID_SOCKET) {
 			WSACleanup();
@@ -56,11 +52,9 @@ MySocket::MySocket(SocketType socketType, std::string ip, unsigned int port, Con
 			WSACleanup();
 		}
 	}
-	if (size > 0)
-	{
+	if (size > 0) {
 		Buffer = new char[size];
-	}
-	else {
+	} else {
 		Buffer = new char[DEFAULT_SIZE];
 	}
 
@@ -76,9 +70,8 @@ MySocket::~MySocket() {
 }
 
 void MySocket::ConnectTCP() {
-
-
 	if (GetType() == TCP) {
+		char buffer[64];
 		if ((connect(this->ConnectionSocket, (struct sockaddr *)&SvrAddr, sizeof(SvrAddr))) == SOCKET_ERROR) {
 			closesocket(this->ConnectionSocket);
 			WSACleanup();
@@ -86,9 +79,11 @@ void MySocket::ConnectTCP() {
 			std::cin.get();
 			exit(0);
 		}
+		send(ConnectionSocket, "SYN", sizeof("SYN"), 0);
+		recv(ConnectionSocket, buffer, sizeof(buffer), 0);
 	}
 
-	//Ack Syn Ack - Checks ConnectionType
+	//Syn Ack(Syn) Ack - Checks ConnectionType
 	// handshake
 }
 

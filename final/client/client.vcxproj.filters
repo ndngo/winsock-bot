@@ -21,10 +21,7 @@
     <ClCompile Include="..\Pkt_Def.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Milestone1_BasicValidation.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Milestone2_Server.cpp">
+    <ClCompile Include="Milestone2_Client.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
