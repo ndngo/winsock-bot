@@ -13,6 +13,7 @@ MySocket::MySocket(SocketType socketType, std::string ip, unsigned int port, Con
 	} else {
 		MaxSize = size;
 	}
+	Buffer = new char[MaxSize];
 
 	// if invalid size, set size to DEFAULT_SIZE
 	
@@ -126,14 +127,12 @@ int MySocket::GetData(char * buffer) {
 	//Receives Data
 	int addr_len = sizeof(SvrAddr);
 	int size = 0;
-	Buffer = new char[MaxSize];
 	if (connectionType == TCP) {
 		size = recv(ConnectionSocket, Buffer, MaxSize, 0);
 	}
 	else if (connectionType == UDP) {
 		size = recvfrom(ConnectionSocket, Buffer, MaxSize, 0, (sockaddr *)&SvrAddr, &addr_len);
 	}
-	int i = WSAGetLastError();
 	memcpy(buffer, Buffer, size);
 	return size;
 }
