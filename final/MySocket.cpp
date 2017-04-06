@@ -96,7 +96,6 @@ MySocket::~MySocket() {
 
 void MySocket::ConnectTCP() {
 	if (GetType() == TCP) {
-		char buffer[32];
 		if ((connect(this->ConnectionSocket, (struct sockaddr *)&SvrAddr, sizeof(SvrAddr))) == SOCKET_ERROR) {
 			closesocket(this->ConnectionSocket);
 			WSACleanup();
@@ -105,6 +104,7 @@ void MySocket::ConnectTCP() {
 			exit(0);
 		}
 	}
+
 }
 
 void MySocket::DisconnectTCP() {
