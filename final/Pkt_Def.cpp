@@ -134,9 +134,9 @@ CmdType PktDef::GetCmd() {
 
 	// check ack bit first before anything else because the presence of
 	// ack means it is an ack bit regardless of the other bits
-
-	if      ((*p >> 5) & 0x01) { return ACK; }
-	else if	(*p & 0x01)		   { return DRIVE; }
+	// check ack using GetAck() method, also ACK is not a cmd
+	// if      ((*p >> 5) & 0x01) { return ACK; }
+	if	    (*p & 0x01)		   { return DRIVE; }
 	else if ((*p >> 1) & 0x01) { return STATUS; }
 	else if ((*p >> 2) & 0x01) { return SLEEP; }
 	else if ((*p >> 3) & 0x01) { return ARM; }
