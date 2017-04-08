@@ -10,8 +10,6 @@ bool ExeComplete = false;
 void command(std::string ip, int port) {
 	char * receiveData;
 
-
-
 	int command = 0;
 	char * ptr;
 	int time = 0;
