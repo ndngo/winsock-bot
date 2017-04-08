@@ -46,7 +46,7 @@ PktDef::PktDef(char * raw) {
 	// ACK automatically makes size 0 regardless of the other bits
 	// , check for ACK bit first
 
-	if (GetCmd() == ACK || GetCmd() == SLEEP || GetCmd() == NACK) {
+	if (GetAck() || GetCmd() == SLEEP || GetCmd() == NACK) {
 		size = 0;
 	} else if (GetCmd() == DRIVE || GetCmd() == ARM || GetCmd() == CLAW) {
 		size = 2;

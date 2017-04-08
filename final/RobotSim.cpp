@@ -2,89 +2,89 @@
 #include "MySocket.h"
 #include <thread> 
 #include <iostream>
+#include <iomanip>
 #include <string>
 
 bool ExeComplete = false;
 
-void command() {
+void command(std::string ip, int port) {
 	char * receiveData;
 
-	std::string ipAddress = "";
-	std::cout << "Enter command IP address: ";
-	std::cin >> ipAddress;
 
-	int portNumber;
-	std::cout << std::endl << "Enter command port number: ";
-	std::cin >> portNumber;
 
-	std::string command = "";
+	int command = 0;
 	char * ptr;
 	int time = 0;
 	int count = 0; 
 	
 	// Create MySocket obj
-	MySocket CommandSocket(SocketType::CLIENT, ipAddress, portNumber, ConnectionType::TCP, 100);
+	MySocket CommandSocket(SocketType::CLIENT, ip, port, ConnectionType::TCP, 100);
 	
 	// 3 way handshake
 	CommandSocket.ConnectTCP();
 	while (!ExeComplete) {
-
+		enum choice {ADVANCE, RETREAT, SINISTER, DEXTER, RAISE, LOWER, RELEASE, HOLD, ZZZ};
 		// packet create
+		std::cout << "options:\n0-forward\n1-backward\n2-left\n3-right\n4-up\n5-down\n6-open\n7-close\n8-sleep" << std::endl;
+		
 		std::cout << "Enter command: ";
 		std::cin >> command;
+		std::cin.ignore(2000, '\n');
 		std::cout << "Enter duration: ";
 		std::cin >> time;
+		std::cin.ignore(2000, '\n');
 		MotorBody DriveCmd;
 		PktDef txPacket;
-		if (command == "forward") {
+
+		if (command == ADVANCE) { // "forward"
 			txPacket.SetCmd(DRIVE);
 			DriveCmd.Direction = FORWARD;
 			DriveCmd.Duration = time;
 			txPacket.SetBodyData((char*)&DriveCmd, 2);
 		}
-		else if (command == "backward") {
+		else if (command == RETREAT) { // "backward"
 			txPacket.SetCmd(DRIVE);
 			DriveCmd.Direction = BACKWARD;
 			DriveCmd.Duration = time;
 			txPacket.SetBodyData((char*)&DriveCmd, 2);
 		}
-		else if (command == "left")	{	
+		else if (command == SINISTER)	{	// "left"
 			txPacket.SetCmd(DRIVE);
 			DriveCmd.Direction = LEFT;
 			DriveCmd.Duration = time;
 			txPacket.SetBodyData((char*)&DriveCmd, 2);
 		}
-		else if (command == "right") {
+		else if (command == DEXTER) { // "right"
 			txPacket.SetCmd(DRIVE);
 			DriveCmd.Direction = RIGHT;
 			DriveCmd.Duration = time;
 			txPacket.SetBodyData((char*)&DriveCmd, 2);
 		}
-		else if (command == "up") {
+		else if (command == RAISE) { // up
 			txPacket.SetCmd(ARM);
 			DriveCmd.Direction = UP;
 			DriveCmd.Duration = time;
 			txPacket.SetBodyData((char*)&DriveCmd, 2);
 		}
-		else if (command == "down") {
+		else if (command == LOWER) { // down
 			txPacket.SetCmd(ARM);
 			DriveCmd.Direction = DOWN;
 			DriveCmd.Duration = time;
 			txPacket.SetBodyData((char*)&DriveCmd, 2);
 		}
-		else if (command == "open") {
+		else if (command == RELEASE) { // open
 			txPacket.SetCmd(CLAW);
 			DriveCmd.Direction = OPEN;
 			DriveCmd.Duration = time;
 			txPacket.SetBodyData((char*)&DriveCmd, 2);
 		}
-		else if (command == "close") {
+		else if (command == HOLD) { // close
 			txPacket.SetCmd(CLAW);
 			DriveCmd.Direction = CLOSE;
 			DriveCmd.Duration = time;
 			txPacket.SetBodyData((char*)&DriveCmd, 2);
 		}
-		else if (command == "sleep") {
+		else if (command == ZZZ) { // sleep
 			txPacket.SetCmd(SLEEP);
 
 			// do not disconnect when sleep packet is sent
@@ -103,7 +103,6 @@ void command() {
 		receiveData = new char[256];
 		int dataSize = CommandSocket.GetData(receiveData);
 		PktDef rxPacket(receiveData);
-		
 		// process packet only if CRC is good
 		// wait for ack
 		// while bad ACK or is a NACK, resend cmd packet
@@ -120,62 +119,97 @@ void command() {
 			rxPacket.CheckCRC(receiveData, dataSize);
 			rxPacket.SetBodyData(receiveData,dataSize);
 		}
-		
 		// the cmd packet is well formed and robot has replied with ACK(cmd)
 		// if ACK(SLEEP) was received, begin cleanup process
 
-		if (rxPacket.GetCmd == SLEEP) {
+		if (rxPacket.GetCmd() == SLEEP) {
 			CommandSocket.DisconnectTCP();
 			ExeComplete = true;
 		}
-
 	}
-
-
 }
-void telemetry() {
-	std::string ipAddress = "";
-	std::cout << "Enter telemetry IP address: ";
-	std::cin >> ipAddress;
-	
-	int portNumber = 0;
-	std::cout << "Please input port number for telemetry: ";
-	std::cin >> portNumber;
+void telemetry(std::string ip, int port) {
 
-	MySocket TelemetrySocket(SocketType::CLIENT, ipAddress, portNumber, ConnectionType::TCP, 100);
+
+	MySocket TelemetrySocket(SocketType::CLIENT, ip, port, ConnectionType::TCP, 100);
 	TelemetrySocket.ConnectTCP();
 
+
+	// receive data from robot
+	// crc check, check calculated crc, with given crc, calculate crc with packet, given crc in buffer
+	char * recvData = new char[256];
+	int size = 0;
+
+	for (;;) {
+		memset(recvData, 0, sizeof(recvData));
+		size = TelemetrySocket.GetData(recvData);
+		PktDef rxPacket(recvData);
+
+		// if packet is well formed and has status bit set
+		if (rxPacket.CheckCRC(recvData, size) && rxPacket.GetCmd() == STATUS) {
+
+			// psilay RAW
+			char * p = recvData;
+			std::cout << "display RAW: " << std::endl;
+			for (int i = 0; i < size; i++) {
+				std::cout << std::hex << (unsigned int)*(p++);
+			}
+
+			// display sonar reading, arm reading body
+			char * q = rxPacket.GetBodyData();
+			int bodysize = rxPacket.GetLength() - HEADERSIZE - sizeof(char);
+			std::cout << std::dec << "sonar value: " << (unsigned int) * (q++) << std::endl;
+			p++;
+			std::cout << std::dec << "\narm pos: " << (unsigned int) * (q++);
+			for (int i = 0; i < bodysize; i++) {
+				std::cout << std::hex << (unsigned int)*(q++) << " ";
+			}
+			// display drive
+			std::cout << "\nDRIVE: ";
+			if (rxPacket.GetCmd() == DRIVE) { std::cout << "1 "; }
+			else { std::cout << "0 "; }
+
+			// dispaly arm claw status
+			/*char * r = rxPacket.GetBodyData();
+			if ((*q >> 3) & 0x01) { std::cout << "arm is up "; }
+			else { std::cout << "arm is down ";  }
+			
+			if ((*q >> 4) & 0x01) { std::cout << "claw is open"; }
+			else { std::cout << "claw is closed"; }
+			std::cout << std::endl;
+			*/
+			std::cout << "Packet count: " << std::dec << rxPacket.GetPktCount() << std::endl;
+		}
+
+
+	}
 }
-//
-//void task2()
-//{
-//	char * receiveData;
-//	int dataSize;
-//	std::cout << "Please input I.P Address : ";
-//	std::string ipAddress = "";
-//	std::cin >> ipAddress;
-//	int portNumber;
-//	std::cout << std::endl << "Please input port : ";
-//	std::cin >> portNumber;
-//	MySocket TelemetrySocket(SocketType::CLIENT, ipAddress, portNumber, ConnectionType::TCP, 100);
-//	TelemetrySocket.ConnectTCP();
-//	dataSize = TelemetrySocket.GetData(receiveData);
-//	PktDef packet2(receiveData);
-//	
-//	packet2.CheckCRC(receiveData, dataSize);
-//	
-//}
-
-
 
 int main()
 {
+	// get uinput from main then pass into threads
 
-	std::thread CommandThread(command);
-	//std::thread TelemetryThread(task2);
-	
-	//TelemetryThread.detach();
+	std::string ip = "";
+	std::cout << "Enter IP address: ";
+	std::cin >> ip;
+	std::cin.ignore(2000, '\n');
+
+	int portcmd = 0;
+	std::cout << "Enter command port number: ";
+	std::cin >> portcmd;
+	std::cin.ignore(2000, '\n');
+
+	/*int porttele = 0;
+	std::cout << "Enter telemetry port number: ";
+	std::cin >> porttele;
+	*/
+	std::thread CommandThread(command, ip, portcmd);
+	//std::thread TelemetryThread(telemetry, ip, porttele);
+
 	CommandThread.detach();
+	//TelemetryThread.detach();
+
+	for(;;)
 	std::cin.get();
 	return 0;
 }
