@@ -23,16 +23,14 @@ void command(std::string ip, int port) {
 	// 3 way handshake
 	CommandSocket.ConnectTCP();
 	while (!ExeComplete) {
-		enum choice {ADVANCE, RETREAT, SINISTER, DEXTER, RAISE, LOWER, RELEASE, HOLD, ZZZ};
+		enum choice {ADVANCE = 1, RETREAT, SINISTER, DEXTER, RAISE, LOWER, RELEASE, HOLD, ZZZ};
 		// packet create
-		std::cout << "options:\n0-forward\n1-backward\n2-left\n3-right\n4-up\n5-down\n6-open\n7-close\n8-sleep" << std::endl;
+		std::cout << "options:\n1-forward\n2-backward\n3-left\n4-right\n5-up\n6-down\n7-open\n8-close\n9-sleep" << std::endl;
 		
 		std::cout << "Enter command: ";
 		std::cin >> command;
-		std::cin.ignore(2000, '\n');
 		std::cout << "Enter duration: ";
 		std::cin >> time;
-		std::cin.ignore(2000, '\n');
 		MotorBody DriveCmd;
 		PktDef txPacket;
 
@@ -103,6 +101,7 @@ void command(std::string ip, int port) {
 		receiveData = new char[256];
 		int dataSize = CommandSocket.GetData(receiveData);
 		PktDef rxPacket(receiveData);
+		if (rxPacket.GetAck()) { std::cout << "ACK received" << std::endl; }
 		// process packet only if CRC is good
 		// wait for ack
 		// while bad ACK or is a NACK, resend cmd packet
@@ -192,12 +191,10 @@ int main()
 	std::string ip = "";
 	std::cout << "Enter IP address: ";
 	std::cin >> ip;
-	std::cin.ignore(2000, '\n');
 
 	int portcmd = 0;
 	std::cout << "Enter command port number: ";
 	std::cin >> portcmd;
-	std::cin.ignore(2000, '\n');
 
 	/*int porttele = 0;
 	std::cout << "Enter telemetry port number: ";
