@@ -147,7 +147,7 @@ void telemetry(std::string ip, int port) {
 
 			// psilay RAW
 			char * p = recvData;
-			std::cout << "display RAW: " << std::endl;
+			std::cout << "display RAW: ";
 			for (int i = 0; i < size; i++) {
 				std::cout << std::hex << (unsigned int)*(p++);
 			}
@@ -155,11 +155,11 @@ void telemetry(std::string ip, int port) {
 			// display sonar reading, arm reading body
 			char * q = rxPacket.GetBodyData();
 			int bodysize = rxPacket.GetLength() - HEADERSIZE - sizeof(char);
-			std::cout << std::dec << "sonar value: " << (unsigned int) * (q++) << std::endl;
+			std::cout << std::dec << "\nsonar value: " << (unsigned int) * (q++) << std::endl;
 			p++;
 			std::cout << std::dec << "\narm pos: " << (unsigned int) * (q++);
 			for (int i = 0; i < bodysize; i++) {
-				std::cout << std::hex << (unsigned int)*(q++) << " ";
+				std::cout << std::dec << (unsigned int)*(q++) << " ";
 			}
 			// display drive
 			std::cout << "\nDRIVE: ";
@@ -175,7 +175,7 @@ void telemetry(std::string ip, int port) {
 			else { std::cout << "claw is closed"; }
 			std::cout << std::endl;
 			*/
-			std::cout << "Packet count: " << std::dec << rxPacket.GetPktCount() << std::endl;
+			std::cout << "Packet count: " << std::dec << rxPacket.GetPktCount() << std::endl << std::endl;
 		}
 
 
@@ -194,15 +194,15 @@ int main()
 	std::cout << "Enter command port number: ";
 	std::cin >> portcmd;
 
-	/*int porttele = 0;
+	int porttele = 0;
 	std::cout << "Enter telemetry port number: ";
 	std::cin >> porttele;
-	*/
+	
 	std::thread CommandThread(command, ip, portcmd);
-	//std::thread TelemetryThread(telemetry, ip, porttele);
+	std::thread TelemetryThread(telemetry, ip, porttele);
 
 	CommandThread.detach();
-	//TelemetryThread.detach();
+	TelemetryThread.detach();
 
 	for(;;)
 	std::cin.get();
