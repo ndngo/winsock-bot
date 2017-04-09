@@ -30,58 +30,68 @@ void command(std::string ip, int port) {
 		std::cin >> time;
 		MotorBody DriveCmd;
 		PktDef txPacket;
-		valid = false;
+		
 		if (command == ADVANCE) { // "forward"
 			txPacket.SetCmd(DRIVE);
 			DriveCmd.Direction = FORWARD;
 			DriveCmd.Duration = time;
 			txPacket.SetBodyData((char*)&DriveCmd, 2);
-			valid = true;
+			std::cin.clear();
+			std::cin.ignore(2000, '\n');
 		} else if (command == RETREAT) { // "backward"
 			txPacket.SetCmd(DRIVE);
 			DriveCmd.Direction = BACKWARD;
 			DriveCmd.Duration = time;
 			txPacket.SetBodyData((char*)&DriveCmd, 2);
-			valid = true;
-		} else if (command == SINISTER)	{	// "left"
+			std::cin.clear();
+			std::cin.ignore(2000, '\n');
+			} else if (command == SINISTER)	{	// "left"
 			txPacket.SetCmd(DRIVE);
 			DriveCmd.Direction = LEFT;
 			DriveCmd.Duration = time;
 			txPacket.SetBodyData((char*)&DriveCmd, 2);
-			valid = true;
-		} else if (command == DEXTER) { // "right"
+			std::cin.clear();
+			std::cin.ignore(2000, '\n');
+			} else if (command == DEXTER) { // "right"
 			txPacket.SetCmd(DRIVE);
 			DriveCmd.Direction = RIGHT;
 			DriveCmd.Duration = time;
 			txPacket.SetBodyData((char*)&DriveCmd, 2);
-			valid = true;
+			std::cin.clear();
+			std::cin.ignore(2000, '\n');
 		} else if (command == RAISE) { // up
 			txPacket.SetCmd(ARM);
 			DriveCmd.Direction = UP;
 			DriveCmd.Duration = time;
 			txPacket.SetBodyData((char*)&DriveCmd, 2);
-			valid = true;
+			std::cin.clear();
+			std::cin.ignore(2000, '\n');
 		} else if (command == LOWER) { // down
 			txPacket.SetCmd(ARM);
 			DriveCmd.Direction = DOWN;
 			DriveCmd.Duration = time;
 			txPacket.SetBodyData((char*)&DriveCmd, 2);
-			valid = true;
+			std::cin.clear();
+			std::cin.ignore(2000, '\n');
 		} else if (command == RELEASE) { // open
 			txPacket.SetCmd(CLAW);
 			DriveCmd.Direction = OPEN;
 			DriveCmd.Duration = time;
 			txPacket.SetBodyData((char*)&DriveCmd, 2);
-			valid = true;
+			std::cin.clear();
+			std::cin.ignore(2000, '\n');
 		} else if (command == HOLD) { // close
 			txPacket.SetCmd(CLAW);
 			DriveCmd.Direction = CLOSE;
 			DriveCmd.Duration = time;
 			txPacket.SetBodyData((char*)&DriveCmd, 2);
-			valid = true;
+			std::cin.clear();
+			std::cin.ignore(2000, '\n');
+			
 		} else if (command == ZZZ) { // sleep
+			std::cout << "Going to sleep...";
 			txPacket.SetCmd(SLEEP);
-			valid = true;
+			
 
 			// do not disconnect when sleep packet is sent
 			// wait for ACK(SLEEP) before cleanup
@@ -117,7 +127,10 @@ void command(std::string ip, int port) {
 			// while packet is well formed (check CRC), and packet is not an acknowledgement of the send cmd packet,
 			// and having only tried resending less than 7 times
 			// keep resending
+
+			// check this code what is this
 			for (unsigned i = 0; i < 7 && (!rxPacket.CheckCRC(receiveData, dataSize) || !rxPacket.GetAck()); i++) {
+				std::cout << "CRC validation failed. Resending command packet..." << std::endl;
 				CommandSocket.SendData(ptr, txPacket.GetLength());
 				int dataSize = CommandSocket.GetData(receiveData);
 				rxPacket.CheckCRC(receiveData, dataSize);
