@@ -14,7 +14,7 @@ void command(std::string ip, int port) {
 	char * ptr;
 	int time = 0;
 	int count = 0; 
-	bool valid = false;	// Create MySocket obj
+	
 	MySocket CommandSocket(SocketType::CLIENT, ip, port, ConnectionType::TCP, 100);
 	
 	// 3 way handshake
@@ -45,14 +45,14 @@ void command(std::string ip, int port) {
 			txPacket.SetBodyData((char*)&DriveCmd, 2);
 			std::cin.clear();
 			std::cin.ignore(2000, '\n');
-			} else if (command == SINISTER)	{	// "left"
+		} else if (command == SINISTER)	{	// "left"
 			txPacket.SetCmd(DRIVE);
 			DriveCmd.Direction = LEFT;
 			DriveCmd.Duration = time;
 			txPacket.SetBodyData((char*)&DriveCmd, 2);
 			std::cin.clear();
 			std::cin.ignore(2000, '\n');
-			} else if (command == DEXTER) { // "right"
+		} else if (command == DEXTER) { // "right"
 			txPacket.SetCmd(DRIVE);
 			DriveCmd.Direction = RIGHT;
 			DriveCmd.Duration = time;
@@ -116,9 +116,19 @@ void command(std::string ip, int port) {
 			receiveData = new char[256];
 			int dataSize = CommandSocket.GetData(receiveData);
 			PktDef rxPacket(receiveData);
-			if (rxPacket.GetAck()) { std::cout << "ACK received" << std::endl; }
+			char * p = (char *)&rxPacket + sizeof(int);
+
+			if (!rxPacket.CheckCRC(receiveData, dataSize)) {
+				std::cout << "Invalid CRC" << std::endl;
+			} else if (*p == 0) {
+				std::cout << "NACK received" << std::endl;
+				CommandSocket.SendData(ptr, txPacket.GetLength());
+				int dataSize = CommandSocket.GetData(receiveData);
+				rxPacket.CheckCRC(receiveData, dataSize);
+				rxPacket.SetBodyData(receiveData, dataSize);
+			} else if (rxPacket.GetAck()) { std::cout << "\nACK received" << std::endl; }
 			// process packet only if CRC is good
-			// wait for ack
+			// wait for ackx`
 			// while bad ACK or is a NACK, resend cmd packet
 			// check if packet is well formed before checking if ACK
 			// while recv packet from robot is !ACK, then resend txPacket, until at what point should give up?
@@ -129,13 +139,16 @@ void command(std::string ip, int port) {
 			// keep resending
 
 			// check this code what is this
+			//
+
+			/*
 			for (unsigned i = 0; i < 7 && (!rxPacket.CheckCRC(receiveData, dataSize) || !rxPacket.GetAck()); i++) {
 				std::cout << "CRC validation failed. Resending command packet..." << std::endl;
 				CommandSocket.SendData(ptr, txPacket.GetLength());
 				int dataSize = CommandSocket.GetData(receiveData);
 				rxPacket.CheckCRC(receiveData, dataSize);
 				rxPacket.SetBodyData(receiveData, dataSize);
-			}
+			}*/
 			// the cmd packet is well formed and robot has replied with ACK(cmd)
 			// if ACK(SLEEP) was received, begin cleanup process
 
@@ -158,14 +171,17 @@ void telemetry(std::string ip, int port) {
 	char * recvData = new char[256];
 	int size = 0;
 
-	for (;;) {
+	while (!ExeComplete) {
 		memset(recvData, 0, sizeof(recvData));
 		size = TelemetrySocket.GetData(recvData);
 		PktDef rxPacket(recvData);
 
 		// if packet is well formed and has status bit set
-		if (rxPacket.CheckCRC(recvData, size) && rxPacket.GetCmd() == STATUS) {
-
+		if (!rxPacket.CheckCRC(recvData, size)) {
+			std::cout << "Invalid CRC\n";
+		} else if (!(rxPacket.GetCmd() == STATUS)) {
+			std::cout << "STATUS bit not set\n";
+		} else {
 			// psilay RAW
 			char * p = recvData;
 			std::cout << "RECEIVING DATA PACKET" << std::endl << "RAW Data Bytes: ";
@@ -201,6 +217,7 @@ void telemetry(std::string ip, int port) {
 			std::cout << "\nPacket count: " << std::dec << rxPacket.GetPktCount() << std::endl;
 		}
 	}
+	TelemetrySocket.DisconnectTCP();
 }
 
 int main()
