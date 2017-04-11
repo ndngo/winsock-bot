@@ -127,30 +127,6 @@ void command(std::string ip, int port) {
 				rxPacket.CheckCRC(receiveData, dataSize);
 				rxPacket.SetBodyData(receiveData, dataSize);
 			} else if (rxPacket.GetAck()) { std::cout << "\nACK received" << std::endl; }
-			// process packet only if CRC is good
-			// wait for ackx`
-			// while bad ACK or is a NACK, resend cmd packet
-			// check if packet is well formed before checking if ACK
-			// while recv packet from robot is !ACK, then resend txPacket, until at what point should give up?
-			// for 7 times
-			// while (!rxPacket.CheckCRC(receiveData, dataSize) || !rxPacket.GetAck()) {
-			// while packet is well formed (check CRC), and packet is not an acknowledgement of the send cmd packet,
-			// and having only tried resending less than 7 times
-			// keep resending
-
-			// check this code what is this
-			//
-
-			/*
-			for (unsigned i = 0; i < 7 && (!rxPacket.CheckCRC(receiveData, dataSize) || !rxPacket.GetAck()); i++) {
-				std::cout << "CRC validation failed. Resending command packet..." << std::endl;
-				CommandSocket.SendData(ptr, txPacket.GetLength());
-				int dataSize = CommandSocket.GetData(receiveData);
-				rxPacket.CheckCRC(receiveData, dataSize);
-				rxPacket.SetBodyData(receiveData, dataSize);
-			}*/
-			// the cmd packet is well formed and robot has replied with ACK(cmd)
-			// if ACK(SLEEP) was received, begin cleanup process
 
 			if (rxPacket.GetCmd() == SLEEP) {
 				CommandSocket.DisconnectTCP();
@@ -242,7 +218,7 @@ int main()
 	CommandThread.detach();
 	TelemetryThread.detach();
 
-	for(;;)
+	while(!ExeComplete){}
 	std::cin.get();
 	return 0;
 }
